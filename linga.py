@@ -114,12 +114,74 @@ def printResults(cmdDict, pausa=False):
 #     return
 
 
+print ("[*] INFORMACIÓN BÁSICA DEL EQUIPO...\n")
+print ("")
+print ("[*] CPU y Capacidad de Proceso...\n")
+
+cpuInfo = {
+	"CPUINFO":{"cmd":"cat /proc/cpuinfo","msg":"Información del Procesador (/proc/cpuinfo)","results":[]}, 
+	"CPUCOUNT":{"cmd":"cat /proc/cpuinfo | grep processor | wc -l","msg":"Número de hilos (/proc/cpuinfo)","results":[]}, 
+	"CPUCORES":{"cmd":"cat /proc/cpuinfo | grep 'core id' | sort -u","msg":"Número de cores (CPU)","results":[]}, 
+	"CPUVENDOR":{"cmd":"cat /proc/cpuinfo | grep 'vendor' | sort -u","msg":"Fabricante (CPU)","results":[]}, 
+	"CPUMODEL":{"cmd":"cat /proc/cpuinfo | grep 'model name' | sort -u","msg":"Modelo (CPU)","results":[]}, 
+	"CPUINFO_ls":{"cmd":"lscpu 2>/dev/null","msg":"Información del Procesador (lscpu)","results":[]}, 
+	"HWINFO":{"cmd":"lshw -C CPU 2>/dev/null","msg":"Información del Procesador (lshw -C CPU)","results":[]}, 
+	"PROCINFO":{"cmd":"nproc 2>/dev/null","msg":"Número de hilos (nproc)","results":[]}, 
+	"DMIINFO":{"cmd":"dmidecode -q 2>/dev/null","msg":"Información DMI (dmidecode)","results":[]}, 
+	"BIOSINFO":{"cmd":"dmidecode -qt bios 2>/dev/null","msg":"Información BIOS (dmidecode)","results":[]}, 
+	"CPUID":{"cmd":"cpuid 2>/dev/null","msg":"Información DMI (dmidecode)","results":[]}
+	}
+
+cpuInfo = execCmd(cpuInfo)
+printResults(cpuInfo, args.pausas)
+
+print ("[*] Hardware...\n")
+
+computerInfo = {
+	"HWINFOls":{"cmd":"lshw 2>/dev/null","msg":"Información del Equipo (lshw)","results":[]}, 
+	"HWINFOlss":{"cmd":"lshw -short 2>/dev/null","msg":"Información abreviada del Equipo (lshw)","results":[]}, 
+	"HWINFO":{"cmd":"hwinfo --short 2>/dev/null","msg":"Información abreviada del Equipo (hwinfo)","results":[]}, 
+	"PCIINFO":{"cmd":"lspci 2>/dev/null","msg":"Información del Bus PCI (lspci)","results":[]}, 
+	"PCIINFOt":{"cmd":"lspci -tv 2>/dev/null","msg":"Información del Bus PCI (lspci) - Tree","results":[]}, 
+	"VGAINFO":{"cmd":"lspci | grep 'VGA' 2>/dev/null","msg":"Información de la Tarjeta Gráfica (lspci)","results":[]}, 
+	"SCSIINFO":{"cmd":"lsscsi 2>/dev/null","msg":"Información de la Tarjeta Gráfica (lspci)","results":[]}, 
+	"USBINFO":{"cmd":"lsusb 2>/dev/null","msg":"Información del Bus USB (lsusb)","results":[]},
+	"MEMINFO":{"cmd":"free 2>/dev/null","msg":"Información de la Memoria (free)","results":[]},
+	"MEMINFO2":{"cmd":"cat /proc/meminfo 2>/dev/null","msg":"Información de la Memoria (cat /proc/meminfo)","results":[]}
+	}
+
+computerInfo = execCmd(computerInfo)
+printResults(computerInfo, args.pausas)
+
+
+print ("[*] Almacenamiento...\n")
+
+storageInfo = {
+	"BLKINFO":{"cmd":"lsblk 2>/dev/null","msg":"Dispositivos de Bloque (lsblk)","results":[]}, 
+	"BLKINFO2":{"cmd":"lsblk | grep -v 'loop' 2>/dev/null","msg":"Dispositivos de Bloque (lsblk)","results":[]}, 
+	"DFINFO":{"cmd":"df -h 2>/dev/null","msg":"Utilización Dispositivos de Bloque (lsblk)","results":[]}, 
+	"DFINFO2":{"cmd":"df -h | grep -v 'loop' 2>/dev/null","msg":"Utilización Dispositivos de Bloque (lsblk)","results":[]}, 
+	"FDISKINFO":{"cmd":"fdisk -l 2>/dev/null","msg":"Utilización Dispositivos de Bloque (lsblk)","results":[]}, 
+	"MOUNTINFO":{"cmd":"mount | column -t 2>/dev/null","msg":"Utilización Dispositivos de Bloque (lsblk)","results":[]}, 
+	"MOUNTINFO2":{"cmd":"mount | grep -Ev 'squashfs|cgroup|tmpfs' | column -t 2>/dev/null","msg":"Utilización Dispositivos de Bloque (lsblk)","results":[]}, 
+	"PARTITIONINFO":{"cmd":"cat /proc/partitions 2>/dev/null","msg":"Particiones (/proc/partitions)","results":[]}, 
+	"HDPARMINFO":{"cmd":"hdparm /dev/sd? 2>/dev/null","msg":"Particiones (/proc/partitions)","results":[]}
+	}
+
+storageInfo = execCmd(storageInfo)
+printResults(storageInfo, args.pausas)
+
+
+
 print ("[*] INFORMACIÓN BÁSICA DEL SISTEMA...\n")
 
 sysInfo = {"OS":{"cmd":"cat /etc/issue","msg":"Sistema Operativo (Distribución)","results":[]}, 
 	   "KERNEL":{"cmd":"cat /proc/version","msg":"Kernel","results":[]}, 
 	   "HOSTNAME":{"cmd":"hostname", "msg":"Hostname", "results":[]}, 
-	   "DOMAIN":{"cmd":"hostname -d", "msg":"Domain", "results":[]}
+	   "DOMAIN":{"cmd":"hostname -d", "msg":"Domain", "results":[]},
+	   "BOOTCMD":{"cmd":"cat /proc/cmdline 2>/dev/null", "msg":"Boot Command Line (/proc/cmdline)", "results":[]}, 
+	   "UPTIME":{"cmd":"uptime 2>/dev/null", "msg":"Usuarios conectados y tiempo encendido (uptime)", "results":[]}, 
+	   "UNAME":{"cmd":"uname -a 2>/dev/null", "msg":"Información del sistema (uname -a)", "results":[]}
 	  }
 
 sysInfo = execCmd(sysInfo)
@@ -167,7 +229,8 @@ printResults(netInfo, args.pausas)
 print ("[*] INFORMACIÓN DEL SISTEMA DE FICHEROS...\n")
 
 driveInfo = {"MOUNT":{"cmd":"mount","msg":"Sistemas de ficheros montados", "results":[]},
-	     "FSTAB":{"cmd":"cat /etc/fstab 2>/dev/null", "msg":"Contenido del fichero /etc/fstab", "results":[]}
+	    "FSTAB":{"cmd":"cat /etc/fstab 2>/dev/null", "msg":"Contenido del fichero /etc/fstab", "results":[]},
+	    "FSTABt":{"cmd":"cat /etc/fstab | grep -v '#' | column -t 2>/dev/null", "msg":"Contenido del fichero /etc/fstab", "results":[]}
 	    }
 
 driveInfo = execCmd(driveInfo)
@@ -188,11 +251,14 @@ print ("\n[*] INFORMACIÓN DEL USUARIO Y DEL ENTORNO...\n")
 userInfo = {"WHOAMI":{"cmd":"whoami", "msg":"Usuario actual", "results":[]},
 	    "ID":{"cmd":"id","msg":"ID del usuario actual", "results":[]},
 	    "ALLUSERS":{"cmd":"cat /etc/passwd", "msg":"Todos los usuarios (/etc/passwd)", "results":[]},
+	    "ALLUSERS2":{"cmd":"cat /etc/passwd | cut -d':' -f 1 2>/dev/null", "msg":"Nombres de usuario (/etc/passwd)", "results":[]},
+	    "ALLUSERS3":{"cmd":"cat /etc/passwd | grep -Ev 'nologin|false' | cut -d':' -f1,3,7", "msg":"Usuarios con shell (/etc/passwd)", "results":[]},
 	    "SUPUSERS":{"cmd":"grep -v -E '^#' /etc/passwd | awk -F: '$3 == 0{print $1}'", "msg":"Superusuarios encontrados:", "results":[]},
 	    "HISTORY":{"cmd":"ls -la ~/.*_history; ls -la /root/.*_history 2>/dev/null", "msg":"Ficheros 'history' con el registro de comandos del usuario actual y de root (depende de los privilegios)", "results":[]},
 	    "ENV":{"cmd":"env 2>/dev/null | grep -v 'LS_COLORS'", "msg":"Variables de entorno (env)", "results":[]},
 	    "SUDOERS":{"cmd":"cat /etc/sudoers 2>/dev/null | grep -v '#' 2>/dev/null", "msg":"Sudoers (usuarios con privilegios)", "results":[]},
-	    "LOGGEDIN":{"cmd":"w 2>/dev/null", "msg":"Usuarios conectados en este momento", "results":[]}
+	    "LOGGEDIN":{"cmd":"w 2>/dev/null", "msg":"Usuarios conectados en este momento", "results":[]},
+	    "LAST":{"cmd":"last 2>/dev/null", "msg":"Últimos usuarios conectados al sistema", "results":[]}
 	   }
 
 if args.contenido:
